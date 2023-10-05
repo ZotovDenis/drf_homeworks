@@ -1,5 +1,6 @@
 from django.db import models
 
+from users.models import User
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -22,6 +23,7 @@ class Lesson(models.Model):
     description = models.TextField(verbose_name='Описание урока', **NULLABLE)
     preview = models.ImageField(upload_to='course/lesson', verbose_name='Превью урока', **NULLABLE)
     video_url = models.URLField(max_length=300, verbose_name='Ссылка на видео', **NULLABLE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name='Курс', related_name='lessons')
 
     def __str__(self):
         return f'{self.title}'
@@ -29,3 +31,27 @@ class Lesson(models.Model):
     class Meta:
         verbose_name = 'Урок'
         verbose_name_plural = 'Уроки'
+
+
+class Payments(models.Model):
+    PAYMENT_CHOICES = (
+        ('наличные', 'Наличные'),
+        ('перевод на счет', 'Перевод на счет'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь', **NULLABLE)
+    payment_date = models.DateField(auto_now_add=True, verbose_name='Дата оплаты', **NULLABLE)
+
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name='Оплаченный курс', **NULLABLE)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, verbose_name='Оплаченный урок', **NULLABLE)
+
+    payment_amount = models.PositiveIntegerField(verbose_name='Сумма оплаты', **NULLABLE)
+    payment_method = models.CharField(max_length=30, choices=PAYMENT_CHOICES, verbose_name='Способ оплаты', **NULLABLE)
+
+    def __str__(self):
+        return f'{self.user} оплатил {self.course if self.course else self.lesson}: ' \
+               f'{self.payment_date} ({self.payment_method})'
+
+    class Meta:
+        verbose_name = 'Платеж'
+        verbose_name_plural = 'Платежи'
