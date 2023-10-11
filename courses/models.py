@@ -19,6 +19,19 @@ class Course(models.Model):
         verbose_name_plural = 'Курсы'
 
 
+class Subscription(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь', **NULLABLE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name='Курс', **NULLABLE)
+    subscription = models.BooleanField(default=False, verbose_name='Подписка на обновления')
+
+    def __str__(self):
+        return f'{self.user} подписан на обновления курса {self.course}: {self.subscription}'
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+
+
 class Lesson(models.Model):
     title = models.CharField(max_length=120, verbose_name='Название урока')
     description = models.TextField(verbose_name='Описание урока', **NULLABLE)
