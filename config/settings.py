@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'rest_framework_simplejwt',
+    'drf_yasg',
 
     'users',
     'courses',
@@ -147,3 +148,6 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=3),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
+
+PUBLISHABLE_KEY = 'pk_test_51O1uTaLHXPEdSkBHjmLlISueyx5UAoIM9eqQBEglToi2XdDlyXD8cqcsAFwbQCiej4SwQNWrwepsp5rC8U0l0bHu00f3bt6t8g'
+SECRET_KEY = os.getenv('SECRET_KEY')
