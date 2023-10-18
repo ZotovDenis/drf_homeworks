@@ -1,18 +1,12 @@
 from rest_framework import serializers
 
 from courses.models import Course, Lesson, Payments, Subscription
-from courses.services import get_payment_link
 from courses.validators import validator_forbidden_urls
+from courses.services import get_link
 
 
 class LessonSerializer(serializers.ModelSerializer):
     video_url = serializers.URLField(validators=[validator_forbidden_urls], required=False)
-    link = serializers.SerializerMethodField()
-
-    @staticmethod
-    def get_link(obj):
-        lesson = Lesson.objects.get(pk=obj.pk)
-        return get_payment_link(lesson)
 
     class Meta:
         model = Lesson
@@ -24,12 +18,6 @@ class CourseSerializer(serializers.ModelSerializer):
     lesson = LessonSerializer(source='lessons', many=True)
     description = serializers.CharField(validators=[validator_forbidden_urls])
     is_subscribed = serializers.SerializerMethodField()
-    link = serializers.SerializerMethodField()
-
-    @staticmethod
-    def get_link(obj):
-        course = Course.objects.get(pk=obj.pk)
-        return get_payment_link(course)
 
     class Meta:
         model = Course
@@ -41,10 +29,6 @@ class CourseSerializer(serializers.ModelSerializer):
         if instance.lessons.all().count():
             return instance.lessons.all().count()
         return 0
-
-    @staticmethod
-    def get_price(obj):
-        return get_stripe_price(obj)
 
     def get_is_subscribed(self, obj):
         """ Включаем информацию о подписке текущего пользователя на курс """
@@ -63,7 +47,24 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
 
 class PaymentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payments
+        fields = '__all__'
+
+
+class PaymentsRetrieveSerializer(serializers.ModelSerializer):
+    payment_link = serializers.SerializerMethodField()
 
     class Meta:
         model = Payments
         fields = '__all__'
+
+    @staticmethod
+    def get_payment_link(instance):
+        return get_link(instance)
+
+
+class PaymentsSuccessSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payments
+        fields = ['payment_amount', 'is_paid']

@@ -1,34 +1,41 @@
 import stripe
 
-from config.settings import SECRET_KEY
+from config.settings import STRIPE_SECRET_KEY
 
-stripe.api_key = SECRET_KEY
+stripe.api_key = STRIPE_SECRET_KEY
 
 
-def get_payment_link(obj):
-    """ Функция формирования ссылки на оплату """
-
-    if obj.price > 0:
-        subscription_product = stripe.Product.create(
-            name=obj.title,
-        )
-
-        subscription_price = stripe.Price.create(
-            unit_amount=obj.price * 100,
-            currency="rub",
-            product=subscription_product['id'],
-        )
-
-        payment_link = stripe.PaymentLink.create(
-            line_items=[
-                {
-                    "price": subscription_price.id,
-                    "quantity": 1,
-                },
-            ],
-        )
-
-        return payment_link['url']
-
+def get_link(obj):
+    if obj.course:
+        title = obj.course.title
+        description = obj.course.description
     else:
-        return 'Бесплатно'
+        title = obj.lesson.title
+        description = obj.lesson.description
+
+    product = stripe.Product.create(
+        name=title,
+        description=description
+    )
+    product_price = stripe.Price.create(
+        unit_amount=int(obj.payment_amount) * 100,
+        currency='rub',
+        product=product['id']
+    )
+
+    session = stripe.checkout.Session.create(
+        success_url='http://127.0.0.1:8000/payments/success/?success=true&session_id={CHECKOUT_SESSION_ID}',
+        line_items=[
+            {
+                'price': product_price,
+                'quantity': 1
+            }
+        ],
+        mode='payment',
+        metadata={
+            'payment_id': obj.id
+        }
+    )
+    obj.session_id = session.id
+    obj.save()
+    return session['url']

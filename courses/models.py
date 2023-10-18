@@ -65,6 +65,8 @@ class Payments(models.Model):
     payment_amount = models.PositiveIntegerField(verbose_name='Сумма оплаты', **NULLABLE)
     payment_method = models.CharField(max_length=30, choices=PAYMENT_CHOICES, verbose_name='Способ оплаты', **NULLABLE)
 
+    is_paid = models.BooleanField(default=False, verbose_name='Статус оплаты')
+
     def __str__(self):
         return f'{self.user} оплатил {self.course if self.course else self.lesson}: ' \
                f'{self.payment_date} ({self.payment_method})'
