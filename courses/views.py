@@ -1,8 +1,4 @@
-from urllib.parse import urlparse
-
 import stripe
-from django.http import QueryDict, request
-from urllib3.util import url
 
 from config.settings import STRIPE_SECRET_KEY
 from django_filters.rest_framework import DjangoFilterBackend
@@ -122,17 +118,6 @@ class PaymentsCreateAPIView(generics.CreateAPIView):
 
     serializer_class = PaymentsSerializer
     permission_classes = [AllowAny]
-
-    # def create(self, request, *args, **kwargs):
-    #     # Получение токена аутентификации из запроса
-    #     token = request.auth.token
-    #
-    #     # Включение токена в заголовок запроса
-    #     self.headers = {
-    #         'Authorization': f'Bearer {token}',
-    #     }
-    #
-    #     return super().create(request, *args, **kwargs)
 
 
 class PaymentsRetrieveAPIView(generics.RetrieveAPIView):

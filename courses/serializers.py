@@ -61,6 +61,7 @@ class PaymentsRetrieveSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_payment_link(instance):
+        """ Метод для расширения модели Платежей путем добавления ссылки на оплату """
         return get_link(instance)
 
 

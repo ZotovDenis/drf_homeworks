@@ -6,6 +6,8 @@ stripe.api_key = STRIPE_SECRET_KEY
 
 
 def get_link(obj):
+    """ Функция получения ссылки на оплату Курса или Урока """
+
     if obj.course:
         title = obj.course.title
         description = obj.course.description
