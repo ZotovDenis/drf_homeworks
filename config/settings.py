@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework_simplejwt',
     'drf_yasg',
+    'django_celery_beat',
 
     'users',
     'courses',
@@ -151,3 +152,28 @@ SIMPLE_JWT = {
 
 PUBLISHABLE_KEY = 'pk_test_51O1uTaLHXPEdSkBHjmLlISueyx5UAoIM9eqQBEglToi2XdDlyXD8cqcsAFwbQCiej4SwQNWrwepsp5rC8U0l0bHu00f3bt6t8g'
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND')
+
+# Часовой пояс для работы Celery
+CELERY_TIMEZONE = "Europe/Moscow"
+
+# Флаг отслеживания выполнения задач
+CELERY_TASK_TRACK_STARTED = True
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL') == 'True'
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+
+
+CELERY_BEAT_SCHEDULE = {
+    'deactivate-users': {
+        'task': 'users.tasks.user_activity_check',
+        'schedule': timedelta(minutes=1),
+    },
+}

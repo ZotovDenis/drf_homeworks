@@ -13,6 +13,7 @@ from courses.paginators import CoursePaginator, LessonPaginator
 from courses.permissons import IsStaff, IsOwner
 from courses.serializers import CourseSerializer, LessonSerializer, PaymentsSerializer, SubscriptionSerializer,\
     PaymentsSuccessSerializer, PaymentsRetrieveSerializer
+from courses.tasks import send_mail_about_updating_course
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -68,6 +69,14 @@ class LessonCreateAPIView(generics.CreateAPIView):
 
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        """ Если в Курс будет добавлен новый Урок, подписчикам этого курса будет отправлено уведомление"""
+
+        new_lesson = serializer.save()
+        new_lesson.owner = self.request.user
+        send_mail_about_updating_course.delay(new_lesson.course.id)
+        new_lesson.save()
 
 
 class LessonListAPIView(generics.ListAPIView):
